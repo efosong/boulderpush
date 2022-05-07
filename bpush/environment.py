@@ -80,8 +80,9 @@ class BoulderPush(gym.Env):
         width: int,
         n_agents: int,
         sensor_range: int,
-        penalty: float = 0.01,
+        penalty: float = 0.0,
         incentive: float = 0.1,
+        push_direction: Direction = None,
     ):
         """The boulder-push environment
 
@@ -93,12 +94,14 @@ class BoulderPush(gym.Env):
         :type n_agents: int
         :param sensor_range: The range of perception of the agents
         :type sensor_range: int
+        :param push_direction: Direction to push boulder in (or None for any direction)
+        :type push_direction: Direction
         """
-
         self.grid_size = (width, height)
 
         self.push_penalty = penalty
         self.push_reward = incentive
+        self.push_direction = push_direction
 
         self.n_agents = n_agents
         self.sensor_range = sensor_range
@@ -189,8 +192,12 @@ class BoulderPush(gym.Env):
         self.grid[:] = 0
 
         # Spawn a boulder..
-        # First choose an orientation (pushing boulder north, south, east, or west)
-        push_towards = Direction(random.randint(0, 3))
+        if self.push_direction is None:
+            # First choose a random orientation (pushing boulder north, south, east, or west)
+            push_towards = Direction(random.randint(0, 3))
+        else:
+            # Take set direction
+            push_towards = self.push_direction
 
         if push_towards == Direction.SOUTH or push_towards == Direction.NORTH:
             x = random.randint(0, self.grid_size[1] - self.n_agents)

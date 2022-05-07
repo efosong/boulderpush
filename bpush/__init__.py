@@ -1,6 +1,6 @@
 import gym
 from gym.envs.registration import register
-# from bpush import BoulderPush, RewardType, Action
+# from bpush import Direction
 import itertools
 
 
@@ -11,16 +11,25 @@ _sizes = {
     "large": (20, 20),
 }
 
-for size in _sizes.keys():
-    for n_agents in range(1, 5):
+_directions = {
+    "": None,
+    "north-": 0,
+    "south-": 1,
+    "west-": 2,
+    "east-": 3,
+}
 
-        register(
-        id=f"bpush-{size}-{n_agents}ag-v0",
-        entry_point="bpush.environment:BoulderPush",
-        kwargs={
-            "height": _sizes[size][0],
-            "width": _sizes[size][1],
-            "n_agents": n_agents,
-            "sensor_range": 4,
-        },
-)
+for direction in _directions.keys():
+    for size in _sizes.keys():
+        for n_agents in range(1, 5):
+            register(
+                id=f"bpush-{size}-{direction}{n_agents}ag-v0",
+                entry_point="bpush.environment:BoulderPush",
+                kwargs={
+                    "height": _sizes[size][0],
+                    "width": _sizes[size][1],
+                    "n_agents": n_agents,
+                    "sensor_range": 4,
+                    "push_direction": _directions[direction],
+                },
+            )
