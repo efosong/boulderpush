@@ -13,17 +13,22 @@ _sizes = {
 
 _directions = {
     "": None,
-    "north-": 0,
-    "south-": 1,
-    "west-": 2,
-    "east-": 3,
+    "north": 0,
+    "south": 1,
+    "west": 2,
+    "east": 3,
 }
 
 for direction in _directions.keys():
     for size in _sizes.keys():
         for n_agents in range(1, 5):
             register(
-                id=f"bpush-{size}-{direction}{n_agents}ag-v0",
+                id="-".join(filter(None, ["bpush",
+                                          size,
+                                          direction,
+                                          f"{n_agents}ag",
+                                          "v0"
+                                          ])),
                 entry_point="bpush.environment:BoulderPush",
                 kwargs={
                     "height": _sizes[size][0],
