@@ -297,7 +297,7 @@ class Viewer(object):
         agent_size = (self.grid_size + 2) / self.img_arrow.width
 
 
-        for agent in env.agents:
+        for agent in env.agents_obj.values():
             row, col = agent.y, agent.x
 
             agents.append(
@@ -311,4 +311,3 @@ class Viewer(object):
         for p in agents:
             p.update(scale=0.99*agent_size)
         batch.draw()
-        

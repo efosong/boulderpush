@@ -1,7 +1,6 @@
 import gym
-from gym.envs.registration import register
-# from bpush import Direction
-import itertools
+from .bpush_zoo import parallel_env
+from .environment import Direction
 
 
 _sizes = {
@@ -22,7 +21,7 @@ _directions = {
 for direction in _directions.keys():
     for size in _sizes.keys():
         for n_agents in range(1, 5):
-            register(
+            gym.register(
                 id="-".join(filter(None, ["bpush",
                                           size,
                                           direction,

@@ -24,7 +24,8 @@ setup(
     ],
     install_requires=[
         "numpy",
-        "gym>=0.15",
+        "gym>=0.26.2",
+        "pettingzoo>=1.21.0",
         "pyglet",
     ],
     extras_require={"test": ["pytest"]},
