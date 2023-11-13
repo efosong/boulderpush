@@ -3,9 +3,8 @@ import logging
 from collections import defaultdict, OrderedDict
 from copy import copy
 import functools
-import gym
-from gym import spaces
-from gym.utils import seeding
+from gymnasium import spaces
+from gymnasium.utils import seeding
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 from pettingzoo.utils import parallel_to_aec
@@ -60,7 +59,9 @@ class BoulderPush(ParallelEnv):
         penalty: float = 0.0,
         incentive: float = 0.1,
         push_direction: Direction = None,
-        max_steps: Optional[int] = None
+        max_steps: Optional[int] = None,
+        render_mode: str = "rgb_array",
+        render_style: str = "simple",
     ):
         """The boulder-push environment
 
@@ -102,6 +103,8 @@ class BoulderPush(ParallelEnv):
         self._obs_length = len(Direction) + 2 * self._obs_sensor_locations
 
         self.renderer = None
+        self.render_mode = render_mode
+        self.render_style = render_style
 
     def _make_obs(self, agent_id):
         agent = self.agents_obj[agent_id]
@@ -208,7 +211,9 @@ class BoulderPush(ParallelEnv):
                     self.grid[_LAYER_AGENTS, y, x] = 1
                     break
 
-        return {agent: self._make_obs(agent) for agent in self.agents}
+        obs = {agent: self._make_obs(agent) for agent in self.agents}
+        infos = {agent_id: {} for agent_id in self.agents}
+        return obs, infos
 
     def _draw_grid(self):
         self.grid[_LAYER_AGENTS, :] = 0
@@ -374,16 +379,29 @@ class BoulderPush(ParallelEnv):
         infos = {agent_id: {} for agent_id in self.agents}
         return observations, rewards, terminations, truncations, infos
 
-    def render(self, mode="human"):
-        if not self.renderer:
-            from bpush.rendering import Viewer
-
+    def _init_render(self):
+        if self.render_style == "full":
+            from .rendering import Viewer
             self.renderer = Viewer(self.grid_size)
-        return self.renderer.render(self, return_rgb_array=mode == "rgb_array")
+        elif self.render_style == "simple":
+            from .simple_render import render
+            self.renderer = render
+
+    def render(self):
+        if not self.renderer:
+            self._init_render()
+        if self.render_style == "full":
+            return self.renderer.render(self, return_rgb_array=True)
+        elif self.render_style == "simple":
+            return self.renderer(self)
+
+
+
 
     def close(self):
-        if self.renderer:
-            self.renderer.close()
+        if self.render_style == "full":
+            if self.renderer:
+                self.renderer.close()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
